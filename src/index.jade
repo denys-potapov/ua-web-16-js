@@ -1,0 +1,69 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+
+    title Serverless WebRTC Chat
+
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet', integrity='sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7', crossorigin='anonymous')
+    //if lt IE 9
+    script(src='https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js')
+    script(src='https://oss.maxcdn.com/respond/1.4.2/respond.min.js')
+
+    style(type='text/css').
+      textarea { width: 100%; }
+      .finger { font-size: 8px; height: 18em;}
+      h1, h2, h3 { text-align: center; }
+      #main {height: 18em;}
+      .code {font-family: mono; font-size: 10px; height: 40em;}
+  body
+   .container
+      .row
+        .col-md-12
+          h1 serverless chat
+          h3 serverless chat working in latest Chrome of Firefox
+      .row 
+        .col-md-5
+          h2 1a) create
+          ol
+            li send this offer to your friend and wait for answer from him/her.
+            li after you've got answer click accept button
+          h3 offer
+          textarea#local-offer.finger(readonly)
+          h3 answer
+          textarea#remote-answer.finger
+          button#accept.btn.btn-lg.btn-primary.btn-block Accept
+        .col-md-2
+          h2 or
+        .col-md-5
+          h2 1b) join
+          ol
+            li get offer from your friend 
+            li click join button and send answer to your friend
+          h3 offer
+          textarea#remote-offer.finger
+          h3 answer
+          textarea#local-answer.finger(readonly)
+          button#join.btn.btn-lg.btn-primary.btn-block Join
+      .row
+        .col-md-6.col-md-offset-3
+          h1 chat
+          textarea#main
+          .row 
+            .col-md-8
+              textarea#text
+            .col-md-4
+              button#chat.btn.btn-lg.btn-primary.btn-block chat
+      .row
+        .col-md-6
+          h2 code
+          textarea#code.code
+            include ./jsl/chat.jsl
+          button#execute.btn.btn-lg.btn-primary.btn-block execute
+        .col-md-6
+          h2 console
+          textarea#console.code
+
+    script(src='app.js')

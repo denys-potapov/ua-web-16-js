@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Serverless WebRTC Chat</title><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"><!--if lt IE 9--><script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script><script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><style type="text/css">textarea { width: 100%; }
+.finger { font-size: 8px; height: 18em;}
+h1, h2, h3 { text-align: center; }
+#main {height: 18em;}
+.code {font-family: mono; font-size: 10px; height: 40em;}</style></head><body><div class="container"><div class="row"><div class="col-md-12"><h1>serverless chat</h1><h3>serverless chat working in latest Chrome of Firefox</h3></div></div><div class="row"> <div class="col-md-5"><h2>1a) create</h2><ol><li>send this offer to your friend and wait for answer from him/her.</li><li>after you've got answer click accept button</li></ol><h3>offer</h3><textarea id="local-offer" readonly class="finger"></textarea><h3>answer</h3><textarea id="remote-answer" class="finger"></textarea><button id="accept" class="btn btn-lg btn-primary btn-block">Accept</button></div><div class="col-md-2"><h2>or</h2></div><div class="col-md-5"><h2>1b) join</h2><ol><li>get offer from your friend </li><li>click join button and send answer to your friend</li></ol><h3>offer</h3><textarea id="remote-offer" class="finger"></textarea><h3>answer</h3><textarea id="local-answer" readonly class="finger"></textarea><button id="join" class="btn btn-lg btn-primary btn-block">Join</button></div></div><div class="row"><div class="col-md-6 col-md-offset-3"><h1>chat</h1><textarea id="main"></textarea><div class="row"> <div class="col-md-8"><textarea id="text"></textarea></div><div class="col-md-4"><button id="chat" class="btn btn-lg btn-primary btn-block">chat</button></div></div></div></div><div class="row"><div class="col-md-6"><h2>code</h2><textarea id="code" class="code">(do
+  ;
+  ; Framework
+  ;
+
+  (define (error message)
+    (send console log ((+ "ERROR: " message))))
+
+  (define (info message)
+    (send console log ((+ "INFO: " message))))
+
+  (define (# id)
+    (send document getElementById (id)))
+
+
+  (define (on element event f)
+    (send element addEventListener (event f)))
+
+  (define (encode obj) 
+    (send window btoa 
+      ((send (. window JSON) stringify (obj)))
+    ))
+
+  (define (decode text) 
+    (send (. window JSON) parse 
+      ((send window atob (text)))
+    ))
+
+  ;
+  ; RTP polyfills
+  ;
+
+  (define (new-connection config)
+    (if (. window webkitRTCPeerConnection)
+        (new webkitRTCPeerConnection (config))
+        (new RTCPeerConnection (config))
+    )
+  )
+
+  ;
+  ; App
+  ;
+
+  (set config ({} iceServers ([] 
+    ({} url stun:23.21.150.121))))
+
+  ; chat helpers
+  
+  (define (chat-message author text) 
+    (bind (# main) value (send ([]
+      (. (# main) value)
+      NL
+      (send (new Date ()) toLocaleTimeString ())
+      author
+      ": "
+      text
+    ) join (" ")))
+  )
+
+  (define (chat-started) (chat-message System "Chat started"))
+  (define (data-message event) (chat-message Other (. event data)))
+
+  (define (link-channel ch) (do
+    (bind globals channel ch)
+    (bind ch onmessage (fun data-message))  
+    (bind ch onopen (fun chat-started))
+  ))
+
+  ; create chat
+  (set connection (new-connection config))
+  (set channel (send connection createDataChannel (chat ({} reliable true))))    
+
+  (set globals ({}
+    "channel" channel
+  ))
+
+  (define (set-local answer)
+    (send connection setLocalDescription (answer)))
+  (send connection createOffer ((fun set-local) (fun error)))
+  
+  (define (set-local-offer event)
+    (if (. event candidate)
+      skip
+      (bind (# local-offer) value (encode (. connection localDescription)))))
+  (bind connection onicecandidate (fun set-local-offer))
+  (link-channel channel)
+  
+  ; join chat
+  (define (join-chat) (do
+    (set connection (new-connection config))
+    (send connection setRemoteDescription (
+      (new RTCSessionDescription ((decode (. (# remote-offer) value))))
+    ))
+
+    (define (set-local answer)
+      (send connection setLocalDescription (answer)))
+    (send connection createAnswer ((fun set-local) (fun error)))
+
+    (define (set-local-answer event)
+      (if (. event candidate)
+        skip
+        (bind (# local-answer) value (encode (. connection localDescription)))))
+    (bind connection onicecandidate (fun set-local-answer))
+
+    (define (set-data-channel event) (do
+      (link-channel (if (. event "channel") (. event "channel") event))
+    ))
+    
+    (bind connection ondatachannel (fun set-data-channel))
+  ))
+ 
+  (define (accept-chat) 
+    (send connection setRemoteDescription (
+      (new RTCSessionDescription ((decode (. (# remote-answer) value))))
+    ))
+  )
+
+  (define (send-chat) (do 
+    (chat-message You (. (# text) value))
+    (send (. globals channel) "send" ((. (# text) value)))
+  ))
+
+  ; bindings
+  (on (# join) click (fun join-chat))
+  (on (# accept) click (fun accept-chat))
+  (on (# chat) click (fun send-chat))
+
+)</textarea><button id="execute" class="btn btn-lg btn-primary btn-block">execute</button></div><div class="col-md-6"><h2>console</h2><textarea id="console" class="code"></textarea></div></div></div><script src="app.js"></script></body></html>

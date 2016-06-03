@@ -1,0 +1,128 @@
+(do
+  ;
+  ; Framework
+  ;
+
+  (define (error message)
+    (send console log ((+ "ERROR: " message))))
+
+  (define (info message)
+    (send console log ((+ "INFO: " message))))
+
+  (define (# id)
+    (send document getElementById (id)))
+
+
+  (define (on element event f)
+    (send element addEventListener (event f)))
+
+  (define (encode obj) 
+    (send window btoa 
+      ((send (. window JSON) stringify (obj)))
+    ))
+
+  (define (decode text) 
+    (send (. window JSON) parse 
+      ((send window atob (text)))
+    ))
+
+  ;
+  ; RTP polyfills
+  ;
+
+  (define (new-connection config)
+    (if (. window webkitRTCPeerConnection)
+        (new webkitRTCPeerConnection (config))
+        (new RTCPeerConnection (config))
+    )
+  )
+
+  ;
+  ; App
+  ;
+
+  (set config ({} iceServers ([] 
+    ({} url stun:23.21.150.121))))
+
+  ; chat helpers
+  
+  (define (chat-message author text) 
+    (bind (# main) value (send ([]
+      (. (# main) value)
+      NL
+      (send (new Date ()) toLocaleTimeString ())
+      author
+      ": "
+      text
+    ) join (" ")))
+  )
+
+  (define (chat-started) (chat-message System "Chat started"))
+  (define (data-message event) (chat-message Other (. event data)))
+
+  (define (link-channel ch) (do
+    (bind globals channel ch)
+    (bind ch onmessage (fun data-message))  
+    (bind ch onopen (fun chat-started))
+  ))
+
+  ; create chat
+  (set connection (new-connection config))
+  (set channel (send connection createDataChannel (chat ({} reliable true))))    
+
+  (set globals ({}
+    "channel" channel
+  ))
+
+  (define (set-local answer)
+    (send connection setLocalDescription (answer)))
+  (send connection createOffer ((fun set-local) (fun error)))
+  
+  (define (set-local-offer event)
+    (if (. event candidate)
+      skip
+      (bind (# local-offer) value (encode (. connection localDescription)))))
+  (bind connection onicecandidate (fun set-local-offer))
+  (link-channel channel)
+  
+  ; join chat
+  (define (join-chat) (do
+    (set connection (new-connection config))
+    (send connection setRemoteDescription (
+      (new RTCSessionDescription ((decode (. (# remote-offer) value))))
+    ))
+
+    (define (set-local answer)
+      (send connection setLocalDescription (answer)))
+    (send connection createAnswer ((fun set-local) (fun error)))
+
+    (define (set-local-answer event)
+      (if (. event candidate)
+        skip
+        (bind (# local-answer) value (encode (. connection localDescription)))))
+    (bind connection onicecandidate (fun set-local-answer))
+
+    (define (set-data-channel event) (do
+      (link-channel (if (. event "channel") (. event "channel") event))
+    ))
+    
+    (bind connection ondatachannel (fun set-data-channel))
+  ))
+ 
+  (define (accept-chat) 
+    (send connection setRemoteDescription (
+      (new RTCSessionDescription ((decode (. (# remote-answer) value))))
+    ))
+  )
+
+  (define (send-chat) (do 
+    (chat-message You (. (# text) value))
+    (send (. globals channel) "send" ((. (# text) value)))
+  ))
+
+  ; bindings
+  (on (# join) click (fun join-chat))
+  (on (# accept) click (fun accept-chat))
+  (on (# chat) click (fun send-chat))
+
+)
