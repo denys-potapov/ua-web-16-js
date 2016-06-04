@@ -1,6 +1,26 @@
 var QUnit = require('qunit-cli');
 
-QUnit.test('firts-test', function ( assert ) {
+var Proto = require('../src/js/proto');
 
-	assert.deepEqual(tokenize(code), tokens, 'Passed!');
+var schema = {
+	Task: [
+		{name: 'title', mode: 'required', type: 'string'},
+		{name: 'time', mode: 'optional', type: 'int'},
+	]
+}
+
+QUnit.test('encode-test', function ( assert ) {
+
+	var proto = new Proto(schema);
+
+	assert.deepEqual(proto.encode({Task: {title: 'Task title'}}), ['Task', 'Task title', undefined], 'Encoded');
 });
+
+QUnit.test('decode-test', function ( assert ) {
+
+	var proto = new Proto(schema);
+
+	assert.deepEqual(proto.decode(['Task', 'Task title', undefined]), {Task: {title: 'Task title', time: undefined}}, 'Decoded');
+});
+
+

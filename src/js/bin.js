@@ -1,4 +1,6 @@
+var init = function(schema) {
 
+}
 
 module.exports = function () {
 	
