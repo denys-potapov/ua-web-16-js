@@ -26,7 +26,7 @@ var decodeObj = function (arr, schema) {
 	arr.forEach(function(el, i) {
 		result[schema[i].name] = el;
 	}, this);
-	console.log(result);
+
 	return result;
 }
 
@@ -35,8 +35,9 @@ Proto.prototype.decode = function (arr) {
 	if (!(type in this.schemas)) {
 		throw "Unknown type " . type;
 	}
-
-	return decodeObj(arr.slice(1), this.schemas[type]);
+	var obj = {};
+	obj[type] = decodeObj(arr.slice(1), this.schemas[type]);
+	return obj;
 }
 
 module.exports = Proto;
