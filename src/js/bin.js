@@ -42,8 +42,9 @@ var encodeArray = function(arr) {
 			case 'object':
 			case 'array':
 				bytes.push(3);
-				bytes.push(el.length);
-				bytes = bytes.concat(encodeArray(el));
+				arrBytes = encodeArray(el);
+				bytes.push(arrBytes.length);
+				bytes = bytes.concat(arrBytes);
 				break;
 			default:
 				throw 'Unknown type' + (typeof el);
@@ -73,7 +74,7 @@ var decodeNumber = function (bytes) {
 	return num;
 };
 
-module.exports.decode = function (bytes) {
+var decodeArray = function(bytes) {
 	var arr = [];
 	var i = 0;
 	while (i < bytes.length) {
@@ -94,6 +95,11 @@ module.exports.decode = function (bytes) {
 		    	arr.push(decodeNumber(bytes.slice(i + 1, i + 5)))
 		    	i += 5; 
 		    	break;
+		    case 3:
+		    	var length = bytes[i + 1];
+		    	arr.push(decodeArray(bytes.slice(i + 2, i + 2 + length)))
+		    	i += 2 + length; 
+		    	break;		    
 		    default:
 		        throw "Unknown byte at " . i;
 		} 
@@ -101,3 +107,5 @@ module.exports.decode = function (bytes) {
 
 	return arr;
 };
+
+module.exports.decode = decodeArray;

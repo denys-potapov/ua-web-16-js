@@ -37,11 +37,13 @@ QUnit.test('encode-complex-test', function ( assert ) {
 QUnit.test('bin-encode-test', function ( assert ) {
 
 	assert.deepEqual(bin.encode(['tt', 10]),  [1,2,0,116,0,116,2,0,0,0,10],'bin encoded');
-	assert.deepEqual(bin.encode([['tt'], 10]),  [3,1,1,2,0,116,0,116,2,0,0,0,10],'bin encoded');
+	assert.deepEqual(bin.encode([['tt'], 10]),  [3,6,1,2,0,116,0,116,2,0,0,0,10],'bin array encoded');
 });
 QUnit.test('bin-decode-test', function ( assert ) {
 
 	assert.deepEqual(bin.decode([1,2,0,116,0,116,2,0,0,0,10]), ['tt', 10], 'bin decoded');
+	assert.deepEqual(bin.decode([3,6,1,2,0,116,0,116,2,0,0,0,10]), [['tt'], 10] ,'bin array decoded');
+
 });
 
 
