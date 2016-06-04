@@ -5,15 +5,8 @@ var log = function (msg) {
 };
 
 var execute = function () {
-	var run = require('./runtime.js');
 	var parse = require('./parse.js');
-	var tokenize = require('./tokenize.js');
-	var code = document.getElementById('code').value;
-	try {
-		run(parse(tokenize(code)), log);
-	} catch (e) {
-		log(e);
-	}
+
 };
 
 document.addEventListener('DOMContentLoaded', execute);
