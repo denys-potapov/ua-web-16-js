@@ -1,8 +1,4 @@
-var types = {
-	undefined: 0,
-	string: 1,
-	number: 2
-};
+
 
 var encodeNum = function (num) {
     arr = new ArrayBuffer(4); 
@@ -28,20 +24,36 @@ var encodeString = function (str) {
 	return bytes;
 };
 
-module.exports.encode = function (arr) {
+var encodeArray = function(arr) {
 	var bytes = [];
 	arr.forEach(function (el) {
-		var type = (typeof el);
-		bytes.push(types[type]);
-		if (type == 'string') {
-			bytes = bytes.concat(encodeString(el));
-		} else {
-			bytes = bytes.concat(encodeNum(el));
+		switch (typeof el) {
+			case 'undefined':
+				bytes.push(0);
+				break;
+			case 'string':
+				bytes.push(1);
+				bytes = bytes.concat(encodeString(el));
+				break;
+			case 'number':
+				bytes.push(2);
+				bytes = bytes.concat(encodeNum(el));
+				break;
+			case 'object':
+			case 'array':
+				bytes.push(3);
+				bytes.push(el.length);
+				bytes = bytes.concat(encodeArray(el));
+				break;
+			default:
+				throw 'Unknown type' + (typeof el);
 		}
-	})
+	});
 
 	return bytes;
 };
+
+module.exports.encode = encodeArray;
 
 var decodeString = function (bytes) {
 	var str = ""; 

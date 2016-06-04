@@ -1,12 +1,15 @@
 var Proto = function (schemas) {
-	this.types = ['string', 'number', 'boolean'];
 	this.schemas = schemas;
 }
 
-var encodeObj = function (obj, schema) {
+Proto.prototype.encodeObj = function (obj, type) {
 	var result = [];
-	schema.forEach(function(field) {
-		result.push(obj[field.name]);
+	this.schemas[type].forEach(function(field) {
+		if (field.type in this.schemas) {
+			result.push(this.encodeObj(obj[field.name], field.type))
+		} else {
+			result.push(obj[field.name]);			
+		}
 	}, this);
 
 	return result;
@@ -18,7 +21,7 @@ Proto.prototype.encode = function (obj) {
 		throw "Unknown type " . type;
 	}
 
-	return [type].concat(encodeObj(obj[type], this.schemas[type]));
+	return [type].concat(this.encodeObj(obj[type], type));
 }
 
 var decodeObj = function (arr, schema) {
