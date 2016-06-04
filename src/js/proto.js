@@ -24,10 +24,15 @@ Proto.prototype.encode = function (obj) {
 	return [type].concat(this.encodeObj(obj[type], type));
 }
 
-var decodeObj = function (arr, schema) {
+Proto.prototype.decodeObj = function (arr, type) {
 	var result = {};
 	arr.forEach(function(el, i) {
-		result[schema[i].name] = el;
+		var field = this.schemas[type][i];
+		if (field.type in this.schemas) {
+			result[field.name] = this.decodeObj(el, field.type);
+		} else {
+			result[field.name] = el;
+		}
 	}, this);
 
 	return result;
@@ -39,7 +44,7 @@ Proto.prototype.decode = function (arr) {
 		throw "Unknown type " . type;
 	}
 	var obj = {};
-	obj[type] = decodeObj(arr.slice(1), this.schemas[type]);
+	obj[type] = this.decodeObj(arr.slice(1), type);
 	return obj;
 }
 

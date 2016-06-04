@@ -34,6 +34,11 @@ QUnit.test('encode-complex-test', function ( assert ) {
 	assert.deepEqual(proto.encode({Task: {responsible: {name: 'Bob'}}}), ['Task', ['Bob']], 'Encoded');
 });
 
+QUnit.test('decode-complex-test', function ( assert ) {
+	var proto = new Proto(schemas);
+	assert.deepEqual(proto.decode(['Task', ['Bob']]), {Task: {responsible: {name: 'Bob'}}}, 'Encoded');
+});
+
 QUnit.test('bin-encode-test', function ( assert ) {
 
 	assert.deepEqual(bin.encode(['tt', 10]),  [1,2,0,116,0,116,2,0,0,0,10],'bin encoded');
