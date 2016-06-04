@@ -12,3 +12,8 @@ Tests:
 Source code:
 
 	cd src/
+
+
+Export
+	
+	git archive --format zip --output name.zip master 

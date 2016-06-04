@@ -11,8 +11,9 @@
   "scripts": {
   	"build:js": "browserify src/js/app.js > dist/app.js",
   	"build:html": "jade src --out dist",
-  	"build": "npm run build:js && npm run build:html",
-    "watch": "watch 'npm run build' src/",
+  	"build:tests": "browserify tests/app.js > dist/tests.js",
+  	"build": "npm run build:js && npm run build:html && npm run build:tests",
+    "watch": "watch \"npm run build\" src/",
     "lint": "standard src/js/*.js",
     "lint:format": "standard-format src/js/*.js -w",
     "test": "qunit-cli tests/app.js"
