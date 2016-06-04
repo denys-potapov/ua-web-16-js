@@ -2,6 +2,7 @@ var QUnit = require('qunit-cli');
 
 var Proto = require('../src/js/proto');
 var bin = require('../src/js/bin');
+var textToSchema = require('../src/js/schema');
 
 var schema = {
 	Task: [
@@ -76,6 +77,20 @@ QUnit.test('bin-decode-test', function ( assert ) {
 	assert.deepEqual(bin.decode([3,6,1,2,0,116,0,116,2,0,0,0,10]), [['tt'], 10] ,'bin array decoded');
 
 });
+
+QUnit.test('bin-decode-test', function ( assert ) {
+	var text = "\
+	User {required string name; optional int age; } \
+	Time {required string name;} \
+	";
+	assert.deepEqual(textToSchema(text), 
+		{ User:
+   			[ { required: true, type: 'string', name: 'name' },
+     		  { required: false, type: 'int', name: 'age' } ],
+  		Time: [ { required: true, type: 'string', name: 'name' } ] },
+   'schema loadedd');
+});
+
 
 
 

@@ -13,14 +13,36 @@ html(lang='en')
     script(src='https://oss.maxcdn.com/respond/1.4.2/respond.min.js')
 
     style(type='text/css').
-      h1, h2, h3 { text-align: center; }
+      h1 { text-align: center; }
+      textarea {width: 100%; height: 5em}
   body
    .container
       .row
         .col-md-12
-          h1 Final task
-  
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', integrity='sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS', crossorigin='anonymous')
+          h2 Encode sample
+      .row
+        .col-md-4
+          h2 Schema
+          textarea#schema
+        .col-md-8
+          .row 
+            .col-md-6
+              h2 Object ->
+              textarea#encode-object
+            .col-md-6
+              h2 Binary
+              textarea#encode-binary(readonly)
+            .col-md-12
+              button#encode.btn.btn-lg.btn-primary.btn-block encode
+          .row 
+            .col-md-6
+              h2 Binary ->
+              textarea#decode-binary
+            .col-md-6
+              h2 Object
+              textarea#decode-object(readonly)
+            .col-md-12
+              button#decode.btn.btn-lg.btn-primary.btn-block decode
+
 
     script(src='app.js')

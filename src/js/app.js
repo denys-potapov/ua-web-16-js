@@ -1,13 +1,16 @@
 /* global document, window */
 
-var log = function (msg) {
-	document.getElementById('console').value += '\n' + msg;
-};
+var encode = function () {
 
-var execute = function () {
-	var parse = require('./parse.js');
 
 };
 
-document.addEventListener('DOMContentLoaded', execute);
-document.getElementById('execute').addEventListener('click', execute);
+var decode = function () {
+
+
+};
+
+document.addEventListener('DOMContentLoaded', encode);
+document.addEventListener('DOMContentLoaded', decode);
+document.getElementById('encode').addEventListener('click', encode);
+document.getElementById('decode').addEventListener('click', decode);
