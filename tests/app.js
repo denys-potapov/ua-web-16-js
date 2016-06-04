@@ -5,8 +5,8 @@ var bin = require('../src/js/bin');
 
 var schema = {
 	Task: [
-		{name: 'title', mode: 'required', type: 'string'},
-		{name: 'time', mode: 'optional', type: 'int'},
+		{name: 'title', required: true, type: 'string'},
+		{name: 'time', type: 'int'},
 	]
 }
 
@@ -15,17 +15,43 @@ QUnit.test('encode-test', function ( assert ) {
 	assert.deepEqual(proto.encode({Task: {title: 'Task title'}}), ['Task', 'Task title', undefined], 'Encoded');
 });
 
+QUnit.test('encode-validate-test', function ( assert ) {
+	var proto = new Proto(schema);
+	assert.throws(
+		function () {
+			proto.encode({Task: {time: 10}}); 
+		},
+		/required/,
+	'Required validated');
+	assert.throws(
+		function () {
+			proto.encode({Task: {title: 10}}); 
+		},
+		/string/,
+	'Type validated');
+});
+
 QUnit.test('decode-test', function ( assert ) {
 	var proto = new Proto(schema);
-	assert.deepEqual(proto.decode(['Task', 'Task title', undefined]), {Task: {title: 'Task title', time: undefined}}, 'Decoded');
+	assert.deepEqual(proto.decode(['Task', 'Task title', undefined]), {Task: {title: 'Task title'}}, 'Decoded');
+});
+
+QUnit.test('decode-validate-test', function ( assert ) {
+	var proto = new Proto(schema);
+	assert.throws(
+		function () {
+			proto.decode(['Task', 10, undefined]);
+		},
+		/Unexpected/,
+		'Required validated');
 });
 
 var schemas = {
 	Person: [
-		{name: 'name', mode: 'required', type: 'string'}
+		{name: 'name', required: true, type: 'string'}
 	],
 	Task: [
-		{name: 'responsible', mode: 'required', type: 'Person'}
+		{name: 'responsible', required: true, type: 'Person'}
 	]
 }
 
