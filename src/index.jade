@@ -23,14 +23,31 @@ html(lang='en')
       .row
         .col-md-4
           h2 Schema
-          textarea#schema
+          textarea#schema.
+            User {
+              required string name;
+              required string surname;
+            }
+
+            Task {
+              required string title;
+              optional int time;
+              required User user;
+            }
         .col-md-8
           .row 
             .col-md-6
               h2 Object ->
-              textarea#encode-object
+              p JSON
+              textarea#encode-object.
+
+                {"Task": {
+                  "title": "Final task",
+                  "user": {"name": "Bob", "surname": "Alice"}
+                }}           
             .col-md-6
               h2 Binary
+              p convetred to  byte array (for demo purpose)
               textarea#encode-binary(readonly)
             .col-md-12
               button#encode.btn.btn-lg.btn-primary.btn-block encode

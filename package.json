@@ -15,7 +15,7 @@
   	"build": "npm run build:js && npm run build:html && npm run build:tests",
     "watch": "watch \"npm run build\" src/",
     "lint": "standard src/js/*.js",
-    "lint:format": "standard-format src/js/*.js -w",
+    "lint:format": "standard-format -w src/js/app.js src/js/bin.js src/js/proto.js",
     "test": "qunit-cli tests/app.js"
   }
 }

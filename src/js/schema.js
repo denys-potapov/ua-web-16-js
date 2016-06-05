@@ -18,7 +18,6 @@ var getFields = function (fieldsTexts) {
 
 module.exports = function textToSchema(text) {
 	var rules =  text.match(/\w+\s\{.*?\}/g);
-
 	var schamas = {};
 	rules.forEach(function (ruleText){
 		var name = ruleText.match(/\w+/);

@@ -80,7 +80,10 @@ QUnit.test('bin-decode-test', function ( assert ) {
 
 QUnit.test('bin-decode-test', function ( assert ) {
 	var text = "\
-	User {required string name; optional int age; } \
+	User { \
+		required string name; optional int age; \
+	} \
+	\
 	Time {required string name;} \
 	";
 	assert.deepEqual(textToSchema(text), 
